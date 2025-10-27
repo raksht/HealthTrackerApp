@@ -1,0 +1,142 @@
+import javax.swing.*; import java.awt.*; import java.awt.event.*;
+
+public class HealthTrackerApp extends JFrame { CardLayout layout = new CardLayout(); JPanel mainPanel = new JPanel(layout);
+JTextField loginUser = new JTextField(), regUser = new JTextField(), regFullName = new JTextField();
+JPasswordField loginPass = new JPasswordField(), regPass = new JPasswordField(), regConfirmPass = new JPasswordField();
+JTextField heightField = new JTextField(), weightField = new JTextField(), ageField = new JTextField();
+JTextField foodField = new JTextField(), waterField = new JTextField(), stepsField = new JTextField(), exerciseField = new JTextField();
+JTextArea recordArea = new JTextArea(); Color theme = new Color(173, 216, 230);
+Font font = new Font("Segoe UI", Font.PLAIN, 16);
+
+public HealthTrackerApp() { setTitle("Health Tracker Pro"); setSize(420, 580);
+setDefaultCloseOperation(EXIT_ON_CLOSE); setLocationRelativeTo(null); setResizable(false); mainPanel.add(loginPanel(), "Login"); mainPanel.add(registerPanel(), "Register");
+mainPanel.add(dashboardPanel(), "Dashboard"); add(mainPanel);
+layout.show(mainPanel, "Login");
+}
+
+JPanel loginPanel() {
+JPanel panel = createBasePanel("Login"); panel.add(styledLabel("Username")); panel.add(styledField(loginUser, "Enter your username")); panel.add(styledLabel("Password")); panel.add(styledField(loginPass, "Enter your password"));
+panel.add(styledButton("Login", e -> layout.show(mainPanel, "Dashboard"))); panel.add(styledButton("Create Account", e -> layout.show(mainPanel, "Register"))); return center(panel);
+}
+
+JPanel registerPanel() {
+ 
+JPanel panel = createBasePanel("Create Account"); panel.add(styledLabel("Full Name")); panel.add(styledField(regFullName, "Enter your full name")); panel.add(styledLabel("Username")); panel.add(styledField(regUser, "Choose a username")); panel.add(styledLabel("Password")); panel.add(styledField(regPass, "Enter your password")); panel.add(styledLabel("Confirm Password")); panel.add(styledField(regConfirmPass, "Confirm your password")); panel.add(styledButton("Register", e -> handleRegister()));
+panel.add(styledButton("Go Back", e -> layout.show(mainPanel, "Login"))); return center(panel);
+}
+
+JPanel dashboardPanel() {
+JTabbedPane tabs = new JTabbedPane(); tabs.setFont(font);
+tabs.add("Health Info", addScroll(healthInfoPanel())); tabs.add("Daily Record", dailyRecordPanel()); tabs.add("Logout", logoutPanel());
+return wrapWithTitle("Welcome to Health Tracker", tabs);
+}
+
+JPanel logoutPanel() {
+JPanel panel = new JPanel(new BorderLayout()); panel.setBackground(theme);
+panel.add(styledButton("Logout", e -> layout.show(mainPanel, "Login")), BorderLayout.CENTER);
+return panel;
+}
+
+JPanel healthInfoPanel() {
+JPanel panel = createBasePanel("BMI Calculator"); JLabel result = styledLabel(""); panel.setLayout(new GridLayout(0, 1, 10, 10)); panel.add(styledLabel("Height (cm):"));
+panel.add(styledField(heightField, "Enter your height in cm")); panel.add(styledLabel("Weight (kg):")); panel.add(styledField(weightField, "Enter your weight in kg")); panel.add(styledLabel("Age:")); panel.add(styledField(ageField, "Enter your age")); panel.add(styledButton("Check BMI", e -> {
+try {
+double h = Double.parseDouble(heightField.getText()) / 100; double w = Double.parseDouble(weightField.getText()); double bmi = w / (h * h);
+String status = bmi < 18.5 ? "Underweight – Eat more protein, nuts, dairy." : bmi < 25 ? "Normal – Maintain a balanced diet." :
+bmi < 30 ? "Overweight – Cut sugar, eat more fiber." :
+	"Obese – Avoid processed food, increase greens.";	
+ 
+ 
+result.setText(String.format("BMI: %.1f – %s", bmi, status));
+} catch (Exception ex) { result.setText("Invalid input.");
+}
+}));
+panel.add(result); return panel;
+}
+
+JScrollPane addScroll(JPanel panel) { JScrollPane scroll = new JScrollPane(panel);
+
+scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDE D);
+scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER); scroll.getHorizontalScrollBar().setUnitIncrement(10);
+return scroll;
+}
+
+JPanel dailyRecordPanel() {
+JPanel panel = new JPanel(new BorderLayout(10, 10)); panel.setBackground(Color.white);
+JPanel form = new JPanel(new GridLayout(5, 2, 10, 10)); form.setBackground(Color.white); form.setBorder(BorderFactory.createTitledBorder("Today's Inputs")); form.add(styledLabel("Food Intake")); form.add(styledField(foodField, "E.g., rice,
+veggies, chicken"));
+form.add(styledLabel("Water (cups)")); form.add(styledField(waterField, "Enter cups of water"));
+form.add(styledLabel("Steps")); form.add(styledField(stepsField, "Steps taken today")); form.add(styledLabel("Exercise (min)")); form.add(styledField(exerciseField, "Exercise
+duration"));
+form.add(styledButton("Save Record", e -> saveRecord())); form.add(new JLabel()); recordArea.setFont(new Font("Consolas", Font.PLAIN, 14)); recordArea.setEditable(false);
+JScrollPane scroll = new JScrollPane(recordArea); scroll.setBorder(BorderFactory.createTitledBorder("Log")); panel.add(form, BorderLayout.NORTH);
+panel.add(scroll, BorderLayout.CENTER);
+panel.add(styledButton("Check Daily Status", e -> checkStatus()), BorderLayout.SOUTH); return panel;
+}
+
+void saveRecord() {
+String food = foodField.getText(), water = waterField.getText(), steps = stepsField.getText(), ex = exerciseField.getText();
+String log = String.format("Food: %s | Water: %s | Steps: %s | Exercise: %s\n", food, water, steps, ex);
+recordArea.append(log);
+	recordArea.append(foodTip(food) + "\n");	
+ 
+ 
+foodField.setText(""); waterField.setText(""); stepsField.setText(""); exerciseField.setText("");
+}
+void checkStatus() {
+int water = getInt(waterField.getText()); int steps = getInt(stepsField.getText()); int ex = getInt(exerciseField.getText());
+if (water >= 8) recordArea.append("💧 Good job! You drank enough water.\n"); else recordArea.append("💧 Drink more water (aim for 8+ cups).\n");
+if (steps >= 8000) recordArea.append("🚶 Excellent! You've been active.\n"); else recordArea.append("🚶 Try walking more today (target 8000+ steps).\n"); if (ex >= 30) recordArea.append("🏋◻ Nice! 30+ min of exercise done.\n"); else recordArea.append("🏋◻ Add some exercise to your day.\n");
+}
+String foodTip(String food) {
+String lower = food.toLowerCase();
+boolean hasProtein = lower.matches(".*(egg|meat|beans|tofu|chicken).*"); boolean hasVeg = lower.matches(".*(vegetable|salad|spinach|carrot|greens).*"); boolean hasCarbs = lower.matches(".*(rice|bread|pasta|roti).*");
+if (!hasProtein || !hasVeg || !hasCarbs)
+return "◻ Tip: Include a mix of carbs, veggies & proteins."; return "◻ Balanced meal! Keep it up.";
+}
+
+int getInt(String s) {
+try { return Integer.parseInt(s); } catch (Exception e) { return 0; }
+}
+void handleRegister() {
+String user = regUser.getText(), pass = new String(regPass.getPassword()); String confirm = new String(regConfirmPass.getPassword());
+if (user.isEmpty() || pass.isEmpty() || confirm.isEmpty()) JOptionPane.showMessageDialog(this, "Please fill all fields.");
+else if (!pass.equals(confirm))
+JOptionPane.showMessageDialog(this, "Passwords do not match."); else {
+JOptionPane.showMessageDialog(this, "Account created successfully!"); layout.show(mainPanel, "Login");
+}
+}
+
+JLabel styledLabel(String text) {
+JLabel lbl = new JLabel(text); lbl.setFont(font); return lbl;
+}
+JTextField styledField(JTextField field, String tip) {
+	field.setFont(font); field.setToolTipText(tip); return field;	
+ 
+ 
+}
+
+JPasswordField styledField(JPasswordField field, String tip) { field.setFont(font); field.setToolTipText(tip); return field;
+}
+
+JButton styledButton(String text, ActionListener action) { JButton btn = new JButton(text); btn.setBackground(new Color(100, 181, 246)); btn.setForeground(Color.white);
+btn.setFont(font); btn.addActionListener(action); return btn;
+}
+
+JPanel createBasePanel(String title) {
+JPanel p = new JPanel(new GridLayout(0, 1, 10, 10)); p.setBackground(theme); p.setBorder(BorderFactory.createTitledBorder(title)); return p;
+}
+JPanel wrapWithTitle(String title, JComponent center) { JPanel wrapper = new JPanel(new BorderLayout()); JLabel header = new JLabel(title, JLabel.CENTER); header.setFont(new Font("Segoe UI", Font.BOLD, 20)); header.setForeground(new Color(70, 130, 180)); wrapper.add(header, BorderLayout.NORTH); wrapper.add(center, BorderLayout.CENTER);
+return wrapper;
+}
+
+JPanel center(JComponent panel) {
+JPanel wrapper = new JPanel(new GridBagLayout()); wrapper.setBackground(theme);
+wrapper.add(panel); return wrapper;
+}
+
+public static void main(String[] args) {
+SwingUtilities.invokeLater(() -> new HealthTrackerApp().setVisible(true));
+}
+}
+ 
