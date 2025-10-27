@@ -33,6 +33,17 @@ To be updated as code is added. Common choices for health tracking apps include:
 - Swift (iOS)
 - Kotlin (Android)
 
+## Releases
+
+You can find the latest releases on the [Releases page](https://github.com/raksht/HealthTrackerApp/releases).  
+Release notes and downloadable versions will be provided as the project matures.
+
+## Other Resources
+
+- [Issues](https://github.com/raksht/HealthTrackerApp/issues): Track bugs, feature requests, and tasks.
+- [Pull Requests](https://github.com/raksht/HealthTrackerApp/pulls): Contribute and review code changes.
+- [Discussions](https://github.com/raksht/HealthTrackerApp/discussions) (if enabled): Collaborate, ask questions, and share ideas.
+
 ## Contributing
 
 Feel free to fork this repository, open issues, or submit pull requests.
